@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>rres-studio</title>
+
+  <link rel="icon" type="image/png" sizes="512x512" href="images/rres-logo.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="images/rres-logo.png">
+  <link rel="icon" type="image/png" sizes="32x32"  href="images/rres-logo.png">
+  <link rel="icon" type="image/png" sizes="16x16"  href="images/rres-logo.png">
+  <link rel="apple-touch-icon" sizes="180x180"     href="images/rres-logo.png">
+  <link rel="shortcut icon" href="images/rres-logo.png" type="image/png">
+  <meta name="theme-color" content="#0b0b0b" />
+
+  <style>
+    :root {
+      --bg: #fafafa;
+      --text: #111;
+      --accent1: #c084fc;
+      --accent2: #22d3ee;
+      --border: #ddd;
+    }
+    body.dark { --bg:#0b0b0b; --text:#f1f1f1; --border:#333; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, sans-serif;
+      background: var(--bg); color: var(--text); transition: background .3s, color .3s;
+      overflow-x:hidden;
+    }
+
+    /* particle canvas */
+    #bg { position:fixed; inset:0; z-index:0; pointer-events:none; }
+    header, .hero, .section, footer { position:relative; z-index:1; }
+
+    header{
+      position:sticky; top:0; background:var(--bg); border-bottom:1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center; gap:1rem;
+      padding:1rem 2rem; z-index:5;
+    }
+    .brand{
+      display:flex; align-items:center; gap:.75rem; text-decoration:none; color:inherit;
+      min-width:0;
+    }
+    .brand img{ height:36px; width:auto; display:block; }
+    .brand-title{
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      font-weight:800;
+      background: linear-gradient(to right, var(--accent1), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      white-space:nowrap;
+    }
+    nav{ display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    nav a{ text-decoration:none; color:var(--text); font-weight:500; white-space:nowrap; padding:.25rem 0; }
+    nav a:hover{ text-decoration:underline; }
+
+    .hero{ text-align:center; padding: clamp(1.25rem, 4vw, 2.5rem) 1rem; }
+    .hero h1{ font-size:clamp(1.6rem, 6vw, 2.5rem); font-weight:800; margin-bottom:.75rem; line-height:1.15; }
+    .hero p{ max-width:640px; margin:1rem auto 1.5rem; color:#666; line-height:1.6; }
+
+    .rres-logo{
+      display:grid; place-items:center;
+      width: min(520px, 72vw);
+      margin: 1rem auto 0;
+      padding: .5rem;
+    }
+    .rres-logo img{
+      width:80%; height:auto; display:block;
+      filter: drop-shadow(0 10px 28px rgba(0,0,0,.08));
+      border-radius: 14px;
+      background: transparent;
+    }
+
+    button{
+      border:none; cursor:pointer; padding:.65rem 1.2rem; border-radius:8px;
+      font-size:1rem; font-weight:600; background:linear-gradient(to right, var(--accent1), var(--accent2));
+      color:#fff; transition:opacity .2s, transform .02s; box-shadow:0 6px 18px rgba(0,0,0,.06);
+    }
+    button:hover{ opacity:.92; } button:active{ transform: translateY(1px); }
+
+    .section{ max-width:900px; margin:0 auto; padding: clamp(2.5rem, 6vw, 4rem) 1.5rem; }
+    h2{ font-size:clamp(1.25rem, 3.8vw, 1.8rem); margin-bottom:1rem; }
+
+    .games{
+      display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap:1rem; margin-top:1.25rem;
+    }
+    .game-card{
+      border:1px solid var(--border); border-radius:14px; padding:1rem 1rem 1.25rem;
+      transition: transform .2s, background .2s; background: color-mix(in oklab, var(--bg) 94%, transparent);
+    }
+    .game-card:hover{ transform: translateY(-3px); background: color-mix(in oklab, var(--bg) 90%, transparent); }
+    .game-thumb{
+      width:100%; aspect-ratio: 16/9; border-radius:10px; overflow:hidden; margin-bottom:.75rem;
+      background:#000; border:1px solid var(--border);
+    }
+    .game-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .game-card h3{ margin:.25rem 0 .25rem; font-size:1.2rem; }
+    .game-card p{ color:#666; font-size:.95rem; margin:.25rem 0 .5rem; }
+    .game-card ul{ padding-left:1.1rem; margin:.5rem 0 1rem; }
+
+    footer{ border-top:1px solid var(--border); text-align:center; padding:2rem 1rem; font-size:.9rem; color:#777; }
+
+    @media (max-width:640px){
+      .hero button, .game-card button{ display:block; width:100%; }
+      .hero button + button, .game-card button + button{ margin-top:.5rem; }
+      .rres-logo{ width: min(420px, 86vw); }
+    }
+    @media (max-width:480px){
+      header{ padding:.75rem 1rem; }
+      .section{ padding:2rem 1rem; }
+      .game-card{ border-radius:12px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header>
+    <a class="brand" href="#top">
+      <img src="images/rres-logo.png" alt="RRES Studio logo" loading="eager" decoding="async" />
+      <span class="brand-title">rres-studio</span>
+    </a>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#games">Games</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <div class="rres-logo">
+    <img src="images/rres-logo.png" alt="RRES logo" loading="eager" decoding="async" />
+  </div>
+
+  <section class="hero" id="top">
+    <h1>We are reverse-reverse engineers.</h1>
+    <p>rres-studio, also known as <b>reverse reverse engineers</b>, is an independent game studio experimenting across genres — from logic puzzles to experimental narratives.</p>
+    <button onclick="document.getElementById('games').scrollIntoView({behavior:'smooth'})">Explore Our Games</button>
+  </section>
+
+  <section class="section" id="about">
+    <h2>About Us</h2>
+    <p>Reverse engineering is a analyzing reversely from complete program. We are computer engineers. So reverse-reverse engineers. LOLZZ</p>
+  </section>
+
+  <section class="section" id="games">
+    <h2>Our Games</h2>
+    <div class="games">
+      <div class="game-card">
+        <div class="game-thumb">
+          <img src="images/roloc-header.jpg" alt="ROLOC thumbnail" loading="lazy" decoding="async" />
+        </div>
+        <h3>ROLOC</h3>
+        <p>Roloc is a scheduling puzzle game that is simple yet requires deep thinking.</p>
+        <ul>
+            <li>colorful design</li>
+            <li>many gimmicks</li>
+            <li>require strategy</li>
+        </ul>
+        <button onclick="alert('coming soon!')">Play in Steam</button>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb" style="display:grid;place-items:center;color:#888;background:linear-gradient(135deg,#f3f3f3,#e9e9e9)">
+          Coming Soon
+        </div>
+        <h3>Next Game — Coming Soon</h3>
+        <p>Stay tuned for the next announcement!</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <h2>Contact</h2>
+    <p>Email: <a href="mailto:rres.studio@gmail.com">rres.studio@gmail.com</a></p>
+  </section>
+
+  <footer>
+    © <span id="year"></span> rres-studio — Korea
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    (() => {
+      const canvas = document.getElementById('bg');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d', { alpha: true });
+      let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      let w, h, particles, mouse;
+      const PREFERS_REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function pageHeight() {
+        const d = document.documentElement, b = document.body;
+        return Math.max(window.innerHeight, d.scrollHeight, b.scrollHeight, d.offsetHeight, b.offsetHeight, d.clientHeight);
+      }
+      function resize() {
+        w = canvas.clientWidth = window.innerWidth;
+        h = canvas.clientHeight = pageHeight();
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      function readCSSVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+      function hexToRGBA(hex, a){
+        const m = hex.replace('#',''); const v = parseInt(m.length===3? m.split('').map(c=>c+c).join(''): m, 16);
+        const r=(v>>16)&255, g=(v>>8)&255, b=v&255; return `rgba(${r},${g},${b},${a})`;
+      }
+      function initParticles(){
+        const mobile = window.innerWidth < 640;
+        const baseCount = (w * h) / (mobile ? 2600 : 1200);
+        const count = PREFERS_REDUCED ? 40 : Math.floor(Math.min(mobile?180:360, baseCount));
+        particles = new Array(count).fill(0).map(()=>({
+          x: Math.random()*w, y: Math.random()*h,
+          vx:(Math.random()-0.5)*(mobile?0.4:0.55), vy:(Math.random()-0.5)*(mobile?0.4:0.55),
+          r: mobile ? 0.9 + Math.random() * 1.0 : 1.1 + Math.random() * 1.2
+        }));
+        mouse = { x:-9999, y:-9999 };
+      }
+      function step(){
+        ctx.clearRect(0,0,w,h);
+        const a1 = readCSSVar('--accent1') || '#c084fc';
+        const a2 = readCSSVar('--accent2') || '#22d3ee';
+        const dot = hexToRGBA(a2, .7);
+        const link1 = hexToRGBA(a1, .18);
+        const link2 = hexToRGBA(a2, .12);
+
+        ctx.fillStyle = dot;
+        for (const p of particles){
+          const dx=p.x-mouse.x, dy=p.y-mouse.y, d2=dx*dx+dy*dy;
+          if (d2 < 120*120){
+            const f = (120 / Math.max(50, Math.sqrt(d2))) * .035;
+            p.vx += dx * f / 120; p.vy += dy * f / 120;
+          }
+          p.x += p.vx; p.y += p.vy;
+          if (p.x<-5) p.x=w+5; if (p.x>w+5) p.x=-5;
+          if (p.y<-5) p.y=h+5; if (p.y>h+5) p.y=-5;
+
+          ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+        }
+
+        const stepIdx = window.innerWidth < 640 ? 4 : 2;
+        for (let i=0; i<particles.length; i+=stepIdx){
+          for (let j=i+1; j<particles.length; j+=stepIdx){
+            const p=particles[i], q=particles[j];
+            const dx=p.x-q.x, dy=p.y-q.y, d2=dx*dx+dy*dy;
+            const maxD = window.innerWidth < 640 ? 100 : 130;
+            if (d2 < maxD*maxD){
+              const t = 1 - Math.sqrt(d2)/maxD;
+              ctx.strokeStyle = (i+j)%2 ? link1 : link2;
+              ctx.lineWidth = 1; ctx.globalAlpha = Math.max(.05, t*.3);
+              ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke(); ctx.globalAlpha = 1;
+            }
+          }
+        }
+        if (!PREFERS_REDUCED) requestAnimationFrame(step);
+      }
+
+      const onResize = () => { resize(); initParticles(); };
+      window.addEventListener('resize', onResize, { passive:true });
+      window.addEventListener('orientationchange', onResize, { passive:true });
+      window.addEventListener('mousemove', e => { mouse.x = e.clientX + window.scrollX; mouse.y = e.clientY + window.scrollY; }, { passive:true });
+      window.addEventListener('mouseleave', ()=>{ mouse.x=-9999; mouse.y=-9999; }, { passive:true });
+
+      resize(); initParticles(); step();
+    })();
+  </script>
+</body>
+</html>
